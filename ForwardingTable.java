@@ -6,8 +6,11 @@ import java.util.ArrayList;
 
 public class ForwardingTable {
 
-    // Calculate the next vertex with the shortest distance
-   private int next_min_vertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
+    /* Calculate the next vertex with the shortest distance
+    @params distances ArrayList<Integer> D, visited vertices ArrayList<Boolean> V
+    @return next minimum vertex int nmv
+    */
+    private int next_min_vertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
        int min = Integer.MAX_VALUE;
        int nmv = 0;
 
@@ -18,9 +21,12 @@ public class ForwardingTable {
            }
        }
        return nmv;
-   }
+    }
 
-   // Calculate the shortest path from starting vertex to each vertex
+   /* Calculate the shortest distance from starting vertex to each vertex
+    @params weight matrix W[][], starting vertex sv
+    @return shortest distances ArrayList<Integer> D
+    */
     private ArrayList<Integer> dijkstra(int W[][], int sv) {
         ArrayList<Boolean> V = new ArrayList<>();
         ArrayList<Integer> D = new ArrayList<>();
