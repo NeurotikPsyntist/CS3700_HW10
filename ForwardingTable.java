@@ -2,8 +2,47 @@ package CS3700_HW10;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class ForwardingTable {
+
+    // Calculate the next vertex with the shortest distance
+   private int next_min_vertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
+       int min = Integer.MAX_VALUE;
+       int nmv = 0;
+
+       for (int i = 0; i < D.size(); i++) {
+           if (D.get(i) < min && !V.get(i)) {
+               min = D.get(i);
+               nmv = i;
+           }
+       }
+       return nmv;
+   }
+
+   // Calculate the shortest path from starting vertex to each vertex
+    private ArrayList<Integer> dijkstra(int W[][], int sv) {
+        ArrayList<Boolean> V = new ArrayList<>();
+        ArrayList<Integer> D = new ArrayList<>();
+
+        for (int i=0;i<W.length;i++) {
+            D.add(W[sv][i]);
+            V.add(false);
+        }
+
+        for (int i=0;i<W.length;i++) {
+            int nmv = next_min_vertex(D, V);
+            V.set(nmv, true);
+
+            for (int j=0;j<W.length;j++) {
+                if (W[nmv][j] > 0 && !V.get(i) && D.get(i) > D.get(nmv) + W[nmv][j]) {
+                    D.set(j, D.get(nmv) + W[nmv][j]);
+                }
+            }
+        }
+        return D;
+    }
+
     public static void main(String[] args) throws IOException {
 
         BufferedReader sysIn = new BufferedReader(new InputStreamReader(System.in));
