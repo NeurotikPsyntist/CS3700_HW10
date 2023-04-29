@@ -1,17 +1,89 @@
 package CS3700_HW10;
 
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class ForwardingTable {
 
-    /* Calculate the next vertex with the shortest distance
+    /*
+    Validate node numbers and cost values and
+    calculate the number of vertices in the input file
+    @param fileName Name of file used
+    @param n Number of routers in the network
+    @return verts.size() Number of vertices found in the file
+     */
+    private static int numVerts(String fileName, int n) {
+        int node1, node2, cost;
+        int rowNum = 1;
+        ArrayList<Integer> verts = new ArrayList<>();
+
+        try {
+            BufferedReader file = new BufferedReader(new FileReader(fileName));
+            String line = file.readLine();
+            while (line != null) {
+                String[] parse = line.split("\t");
+                node1 = Integer.parseInt(parse[0]);
+                node2 = Integer.parseInt(parse[1]);
+                cost = Integer.parseInt(parse[2]);
+
+                if (!(node1 >= 0 && node1 <= n - 1 && node2 >= 0 && node2 <= n - 1 && cost > 0)) {
+                    System.out.println("Invalid node number or cost value at row " + rowNum);
+                    file.close();
+                    break;
+                }
+
+                if (!(verts.contains(node1)) && !(verts.contains(node2))) {
+                    verts.add(node1);
+                    verts.add(node2);
+                } else if (!(verts.contains(node1))){
+                    verts.add(node1);
+                } else if (!(verts.contains(node2))) {
+                    verts.add(node2);
+                }
+                line = file.readLine();
+                rowNum++;
+            }
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return verts.size();
+    }
+
+    /*
+    Create adjusted matrix from file and initialize weight matrix
+    @param fileName Name of file used
+    @param W Partially initialized weight matrix
+    @return W Fully initialized weight matrix
+     */
+    private static int[][] adjMatrix(String fileName, int[][] W) {
+        int node1, node2, cost;
+
+        try {
+            BufferedReader file = new BufferedReader(new FileReader(fileName));
+            String line = file.readLine();
+            while (line != null) {
+                String[] parse = line.split("\t");
+                node1 = Integer.parseInt(parse[0]);
+                node2 = Integer.parseInt(parse[1]);
+                cost = Integer.parseInt(parse[2]);
+                W[node1][node2] = cost;
+                line = file.readLine();
+            }
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return W;
+    }
+
+    /*
+    Calculate the next vertex with the shortest distance
     @param D distances
     @param V visited vertices
     @return nmv next minimum vertex
     */
-    private int next_min_vertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
+    private static int nextMinVertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
        int min = Integer.MAX_VALUE;
        int nmv = 0;
 
@@ -24,27 +96,36 @@ public class ForwardingTable {
        return nmv;
     }
 
-   /* Calculate the shortest distance from starting vertex to each vertex
+   /*
+   Calculate the shortest distance from starting vertex to each vertex
     @param W  weight matrix
-    @param sv starting vertex
     @return D distances
     */
-    private ArrayList<Integer> dijkstra(int W[][], int sv) {
+    private static ArrayList<Integer> dijkstra(int[][] W) {
         ArrayList<Boolean> V = new ArrayList<>();
         ArrayList<Integer> D = new ArrayList<>();
+        ArrayList<Integer> N = new ArrayList<>();
+        ArrayList<Integer> Y = new ArrayList<>();
 
         for (int i=0;i<W.length;i++) {
-            D.add(W[sv][i]);
+            D.add(W[0][i]);
             V.add(false);
         }
 
         for (int i=0;i<W.length;i++) {
-            int nmv = next_min_vertex(D, V);
+            int nmv = nextMinVertex(D, V);
             V.set(nmv, true);
 
             for (int j=0;j<W.length;j++) {
                 if (W[nmv][j] > 0 && !V.get(i) && D.get(i) > D.get(nmv) + W[nmv][j]) {
                     D.set(j, D.get(nmv) + W[nmv][j]);
+                    // TODO: 3. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
+                    /*
+                    N.add(nmv);
+                    Y.add(D.get(j));
+                    System.out.println("N': " + N);
+                    System.out.println("Y': " + Y);
+                    */
                 }
             }
         }
@@ -72,50 +153,26 @@ public class ForwardingTable {
                 System.out.println("A total of " + n + " routers have been entered.");
                 loop = false;
             }
-
         }
 
-        // TODO: 2. Use a topo.txt file that contains costs of all links, ONE line for every link. If there is NO link between two routers, i.e., the
+        // TODO: 1. Use a topo.txt file that contains costs of all links, ONE line for every link. If there is NO link between two routers, i.e., the
         //       link cost between these two routers is infinite, NO line is included in the topo.txt file for these two routers. Each line in
         //       this file provides the cost between a pair of routers as below, where tab (‘\t’) is used to separate the numbers in each line.
 
-        BufferedReader reader;
-        int node1 = 0;
-        int node2 = 0;
-        int cost  = 0;
-
-        try {
-            reader = new BufferedReader(new FileReader("topo.txt"));
-            String line = reader.readLine();
-            int rowNum = 1;
-
-            while (line != null) {
-                String[] parse = line.split("\t");
-                node1 = Integer.parseInt(parse[0]);
-                node2 = Integer.parseInt(parse[1]);
-                cost  = Integer.parseInt(parse[2]);
-
-                if (!(node1 >= 0 && node1 <= n - 1 && node2 >= 0 && node2 <= n - 1 && cost > 0)) {
-                    System.out.println("Invalid node number or cost value at row " + rowNum);
-                    reader.close();
-                    break;
+        int numVerts = numVerts("topo.txt", n);
+        int[][] W = new int[numVerts][numVerts];
+        for (int i=0;i<numVerts;i++) {
+            for (int j=0;j<numVerts;j++) {
+                if (j == i) {
+                    W[i][j] = 0;
                 }
-                line = reader.readLine();
-                rowNum++;
+                W[i][j] = Integer.MAX_VALUE;
             }
-
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        W = adjMatrix("topo.txt", W);
+        ArrayList<Integer> D = dijkstra(W);
 
-
-
-        // TODO: 3. Implement the Dijsktra’s algorithm to build up the shortest-path tree rooted at source router V0.
-
-
-        // TODO: 4. Use the shortest-path tree resulted from the Dijsktra’s algorithm to build up the forwarding table for router V0 . Display the
+        // TODO: 3. Use the shortest-path tree resulted from the Dijsktra’s algorithm to build up the forwarding table for router V0 . Display the
         //          forwarding table in the following format:
 
 
