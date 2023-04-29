@@ -80,13 +80,13 @@ public class ForwardingTable {
     @param V visited vertices
     @return nmv next minimum vertex
     */
-    private static int nextMinVertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
+    private static int nextMinVertex(int[] D, boolean[] V) {
        int min = max_value;
        int nmv = 0;
 
-       for (int i = 0; i < D.size(); i++) {
-           if (D.get(i) < min && !V.get(i)) {
-               min = D.get(i);
+       for (int i = 0; i < D.length; i++) {
+           if (D[i] < min && !V[i]) {
+               min = D[i];
                nmv = i;
            }
        }
@@ -99,28 +99,25 @@ public class ForwardingTable {
     @param W  weight matrix
     @return D distances
     */
-    private static ArrayList<Integer> dijkstra(int[][] W) {
-        ArrayList<Boolean> V = new ArrayList<>();
-        ArrayList<Integer> D = new ArrayList<>();
+    private static int[] dijkstra(int[][] W) {
+        boolean[] V = new boolean[W.length];
+        int[] D = new int[W.length];
         ArrayList<Integer> N = new ArrayList<>();
         ArrayList<Integer> Y = new ArrayList<>();
 
         for (int i = 0; i < W.length; i++) {
-            D.add(W[0][i]);
-            V.add(false);
+            D[i] = W[0][i];
+            V[i] = false;
         }
-        System.out.println("Initial D: " + D);
-        System.out.println("Initial V: " + V);
 
-        for (int i = 0; i < W.length; i++) {
+        for (int i = 0; i < W.length - 1; i++) {
             int nmv = nextMinVertex(D, V);
-            System.out.println("NMV: " + nmv);
-            V.set(nmv, true);
+            V[nmv] = true;
 
             for (int j = 0; j < W.length; j++) {
-                int temp = D.get(j) + W[nmv][j];
-                if (W[nmv][j] > 0 && !(V.get(j)) && D.get(j) > temp) {
-                    D.set(j, D.get(nmv) + W[nmv][j]);
+                int temp = D[nmv] + W[nmv][j];
+                if (W[nmv][j] > 0 && !V[j] && D[j] > temp) {
+                    D[j] = D[nmv] + W[nmv][j];
                     // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
 
                     /*
@@ -179,11 +176,15 @@ public class ForwardingTable {
         }
 
         // Set costs in W from "topo.txt"
-        W = adjMatrix("topo.txt", W);
+        int[][] adjW = adjMatrix("topo.txt", W);
 
         // Calculate the shortest distances with dijkstra's
-        ArrayList<Integer> D = dijkstra(W);
-        System.out.println("Final D: " + D);
+        int[] D = dijkstra(adjW);
+        System.out.print("D: ");
+        for (int i = 0; i < D.length; i++) {
+            System.out.print(D[i] + " ");
+        }
+        System.out.println();
 
     }
 }
