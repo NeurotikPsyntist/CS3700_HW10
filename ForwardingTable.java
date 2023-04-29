@@ -26,11 +26,13 @@ public class ForwardingTable {
                 node2 = Integer.parseInt(parse[1]);
                 cost = Integer.parseInt(parse[2]);
 
+                /*
                 if (!(node1 >= 0 && node1 <= n - 1 && node2 >= 0 && node2 <= n - 1 && cost > 0)) {
                     System.out.println("Invalid node number or cost value at row " + rowNum);
                     file.close();
                     break;
                 }
+                */
 
                 if (!(verts.contains(node1)) && !(verts.contains(node2))) {
                     verts.add(node1);
@@ -47,6 +49,7 @@ public class ForwardingTable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(verts.size());
         return verts.size();
     }
 
@@ -170,7 +173,13 @@ public class ForwardingTable {
             }
         }
         W = adjMatrix("topo.txt", W);
+        for (int i=0;i<W.length;i++) {
+            for (int j=0;j< W.length;j++) {
+                System.out.println(W[i][j]);
+            }
+        }
         ArrayList<Integer> D = dijkstra(W);
+        System.out.println("D: " + D);
 
         // TODO: 3. Use the shortest-path tree resulted from the Dijsktra’s algorithm to build up the forwarding table for router V0 . Display the
         //          forwarding table in the following format:
