@@ -5,17 +5,16 @@ import java.util.ArrayList;
 
 public class ForwardingTable {
 
+    // Static int to use as "infinity"
+    private static int max_value = 1000000000;
+
     /*
-    Validate node numbers and cost values and
-    calculate the number of vertices in the input file
+    Validate node and costs in topo.txt file
     @param fileName Name of file used
-    @param n Number of routers in the network
-    @return verts.size() Number of vertices found in the file
      */
-    private static int numVerts(String fileName, int n) {
+    private static boolean validate(String fileName) {
         int node1, node2, cost;
         int rowNum = 1;
-        ArrayList<Integer> verts = new ArrayList<>();
 
         try {
             BufferedReader file = new BufferedReader(new FileReader(fileName));
@@ -26,22 +25,16 @@ public class ForwardingTable {
                 node2 = Integer.parseInt(parse[1]);
                 cost = Integer.parseInt(parse[2]);
 
+                // TODO: 1. Fix number validator
                 /*
                 if (!(node1 >= 0 && node1 <= n - 1 && node2 >= 0 && node2 <= n - 1 && cost > 0)) {
                     System.out.println("Invalid node number or cost value at row " + rowNum);
                     file.close();
+                    return false
                     break;
                 }
                 */
 
-                if (!(verts.contains(node1)) && !(verts.contains(node2))) {
-                    verts.add(node1);
-                    verts.add(node2);
-                } else if (!(verts.contains(node1))){
-                    verts.add(node1);
-                } else if (!(verts.contains(node2))) {
-                    verts.add(node2);
-                }
                 line = file.readLine();
                 rowNum++;
             }
@@ -49,8 +42,7 @@ public class ForwardingTable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(verts.size());
-        return verts.size();
+        return true;
     }
 
     /*
@@ -70,7 +62,9 @@ public class ForwardingTable {
                 node1 = Integer.parseInt(parse[0]);
                 node2 = Integer.parseInt(parse[1]);
                 cost = Integer.parseInt(parse[2]);
-                W[node1][node2] = cost;
+                if (node1 < W.length && node2 < W.length) {
+                    W[node1][node2] = cost;
+                }
                 line = file.readLine();
             }
             file.close();
@@ -87,7 +81,7 @@ public class ForwardingTable {
     @return nmv next minimum vertex
     */
     private static int nextMinVertex(ArrayList<Integer> D, ArrayList<Boolean> V) {
-       int min = Integer.MAX_VALUE;
+       int min = max_value;
        int nmv = 0;
 
        for (int i = 0; i < D.size(); i++) {
@@ -96,6 +90,7 @@ public class ForwardingTable {
                nmv = i;
            }
        }
+       System.out.println("min (nmv): " + min);
        return nmv;
     }
 
@@ -110,19 +105,24 @@ public class ForwardingTable {
         ArrayList<Integer> N = new ArrayList<>();
         ArrayList<Integer> Y = new ArrayList<>();
 
-        for (int i=0;i<W.length;i++) {
+        for (int i = 0; i < W.length; i++) {
             D.add(W[0][i]);
             V.add(false);
         }
+        System.out.println("Initial D: " + D);
+        System.out.println("Initial V: " + V);
 
-        for (int i=0;i<W.length;i++) {
+        for (int i = 0; i < W.length; i++) {
             int nmv = nextMinVertex(D, V);
+            System.out.println("NMV: " + nmv);
             V.set(nmv, true);
 
-            for (int j=0;j<W.length;j++) {
-                if (W[nmv][j] > 0 && !V.get(i) && D.get(i) > D.get(nmv) + W[nmv][j]) {
+            for (int j = 0; j < W.length; j++) {
+                int temp = D.get(j) + W[nmv][j];
+                if (W[nmv][j] > 0 && !(V.get(j)) && D.get(j) > temp) {
                     D.set(j, D.get(nmv) + W[nmv][j]);
-                    // TODO: 3. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
+                    // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
+
                     /*
                     N.add(nmv);
                     Y.add(D.get(j));
@@ -133,6 +133,15 @@ public class ForwardingTable {
             }
         }
         return D;
+    }
+
+    /*
+    Prints the shortest distances found by dijkstra's into forwarding table
+    @param D Set of shortest distances between V0 and n
+     */
+    private static void printTable(ArrayList<Integer> D) {
+        // TODO: 3. Use the shortest-path tree resulted from the Dijkstra’s algorithm to build up the forwarding table for router V-1 . Display the
+        //          forwarding table in the following format:
     }
 
     public static void main(String[] args) throws IOException {
@@ -158,32 +167,23 @@ public class ForwardingTable {
             }
         }
 
-        // TODO: 1. Use a topo.txt file that contains costs of all links, ONE line for every link. If there is NO link between two routers, i.e., the
-        //       link cost between these two routers is infinite, NO line is included in the topo.txt file for these two routers. Each line in
-        //       this file provides the cost between a pair of routers as below, where tab (‘\t’) is used to separate the numbers in each line.
-
-        int numVerts = numVerts("topo.txt", n);
-        int[][] W = new int[numVerts][numVerts];
-        for (int i=0;i<numVerts;i++) {
-            for (int j=0;j<numVerts;j++) {
-                if (j == i) {
-                    W[i][j] = 0;
-                }
-                W[i][j] = Integer.MAX_VALUE;
+        // Initialize 2D int array
+        int[][] W = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                W[i][j] = max_value;
             }
         }
+        for (int i = 0; i < W.length; i++) {
+            W[i][i] = 0;
+        }
+
+        // Set costs in W from "topo.txt"
         W = adjMatrix("topo.txt", W);
-        for (int i=0;i<W.length;i++) {
-            for (int j=0;j< W.length;j++) {
-                System.out.println(W[i][j]);
-            }
-        }
+
+        // Calculate the shortest distances with dijkstra's
         ArrayList<Integer> D = dijkstra(W);
-        System.out.println("D: " + D);
-
-        // TODO: 3. Use the shortest-path tree resulted from the Dijsktra’s algorithm to build up the forwarding table for router V0 . Display the
-        //          forwarding table in the following format:
-
+        System.out.println("Final D: " + D);
 
     }
 }
