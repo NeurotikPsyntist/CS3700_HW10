@@ -2,6 +2,9 @@ package CS3700_HW10;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
 
 public class ForwardingTable {
 
@@ -12,36 +15,29 @@ public class ForwardingTable {
     Validate node and costs in topo.txt file
     @param fileName Name of file used
      */
-    private static boolean validate(String fileName) {
+    private static boolean validate(String fileName, int n) throws IOException {
         int node1, node2, cost;
         int rowNum = 1;
 
-        try {
-            BufferedReader file = new BufferedReader(new FileReader(fileName));
-            String line = file.readLine();
-            while (line != null) {
-                String[] parse = line.split("\t");
-                node1 = Integer.parseInt(parse[0]);
-                node2 = Integer.parseInt(parse[1]);
-                cost = Integer.parseInt(parse[2]);
+        BufferedReader file = new BufferedReader(new FileReader(fileName));
+        String line = file.readLine();
+        while (line != null) {
+            String[] parse = line.split("\t");
+            node1 = Integer.parseInt(parse[0]);
+            node2 = Integer.parseInt(parse[1]);
+            cost  = Integer.parseInt(parse[2]);
 
-                // TODO: 1. Fix number validator
-                /*
-                if (!(node1 >= 0 && node1 <= n - 1 && node2 >= 0 && node2 <= n - 1 && cost > 0)) {
-                    System.out.println("Invalid node number or cost value at row " + rowNum);
-                    file.close();
-                    return false
-                    break;
-                }
-                */
-
-                line = file.readLine();
-                rowNum++;
+            if (node1 < 0 || node1 > n - 1 || node2 < 0 || node2 > n - 1 || cost < 0) {
+                System.out.println("Invalid node number or cost value at row " + rowNum);
+                file.close();
+                return false;
             }
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+
+            line = file.readLine();
+            rowNum++;
         }
+        file.close();
         return true;
     }
 
@@ -51,26 +47,22 @@ public class ForwardingTable {
     @param W Partially initialized weight matrix
     @return W Fully initialized weight matrix
      */
-    private static int[][] adjMatrix(String fileName, int[][] W) {
+    private static int[][] adjMatrix(String fileName, int[][] W) throws IOException {
         int node1, node2, cost;
 
-        try {
-            BufferedReader file = new BufferedReader(new FileReader(fileName));
-            String line = file.readLine();
-            while (line != null) {
-                String[] parse = line.split("\t");
-                node1 = Integer.parseInt(parse[0]);
-                node2 = Integer.parseInt(parse[1]);
-                cost = Integer.parseInt(parse[2]);
-                if (node1 < W.length && node2 < W.length) {
-                    W[node1][node2] = cost;
-                }
-                line = file.readLine();
+        BufferedReader file = new BufferedReader(new FileReader(fileName));
+        String line = file.readLine();
+        while (line != null) {
+            String[] parse = line.split("\t");
+            node1 = Integer.parseInt(parse[0]);
+            node2 = Integer.parseInt(parse[1]);
+            cost  = Integer.parseInt(parse[2]);
+            if (node1 < W.length && node2 < W.length) {
+                W[node1][node2] = cost;
             }
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            line = file.readLine();
         }
+        file.close();
         return W;
     }
 
@@ -90,7 +82,6 @@ public class ForwardingTable {
                nmv = i;
            }
        }
-       System.out.println("min (nmv): " + min);
        return nmv;
     }
 
@@ -99,46 +90,92 @@ public class ForwardingTable {
     @param W  weight matrix
     @return D distances
     */
-    private static int[] dijkstra(int[][] W) {
+    /*
+    private static String[] dijkstra(int[][] W) {
         boolean[] V = new boolean[W.length];
         int[] D = new int[W.length];
-        ArrayList<Integer> N = new ArrayList<>();
-        ArrayList<Integer> Y = new ArrayList<>();
+        int[] N = new int[W.length];
+        String[] Y = new String[W.length];
+        int[] P = new int[W.length];
 
         for (int i = 0; i < W.length; i++) {
             D[i] = W[0][i];
             V[i] = false;
         }
 
+
         for (int i = 0; i < W.length - 1; i++) {
             int nmv = nextMinVertex(D, V);
             V[nmv] = true;
+            N[i] = nmv;
 
             for (int j = 0; j < W.length; j++) {
-                int temp = D[nmv] + W[nmv][j];
-                if (W[nmv][j] > 0 && !V[j] && D[j] > temp) {
+                if (W[nmv][j] > 0 && !V[j] && D[j] > D[nmv] + W[nmv][j]) {
                     D[j] = D[nmv] + W[nmv][j];
                     // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
-
-                    /*
-                    N.add(nmv);
-                    Y.add(D.get(j));
-                    System.out.println("N': " + N);
-                    System.out.println("Y': " + Y);
-                    */
+                    Y[j] = "(V" + P[j] + ", V" + nmv + ")";
+                    P[j] = nmv;
                 }
             }
         }
-        return D;
+
+        System.out.print("P: ");
+        for (int i = 0; i < P.length; i++) {
+            System.out.print(P[i] + " ");
+        }
+        System.out.println();
+
+        System.out.print("V: ");
+        for (int i = 0; i < V.length; i++) {
+            System.out.print(V[i] + " ");
+        }
+        System.out.println();
+
+        System.out.print("N: ");
+        for (int i = 0; i < N.length; i++) {
+            System.out.print(N[i] + " ");
+        }
+        System.out.println();
+
+        return Y;
+    }
+    */
+
+    /*
+    Prints the results of the dijkstra's algorithm
+    @param D Array of shortest distances from dijkstra's
+     */
+    public static void printResults(int[] D) {
+        System.out.print("D: ");
+        for (int i = 0; i < D.length; i++) {
+            System.out.print(D[i] + " ");
+        }
+        System.out.println();
     }
 
     /*
     Prints the shortest distances found by dijkstra's into forwarding table
     @param D Set of shortest distances between V0 and n
      */
-    private static void printTable(ArrayList<Integer> D) {
+    private static void printTable(String[] Y) {
         // TODO: 3. Use the shortest-path tree resulted from the Dijkstra’s algorithm to build up the forwarding table for router V-1 . Display the
         //          forwarding table in the following format:
+        System.out.println("Destination\tLink");
+        for (int i = 1; i < Y.length; i++) {
+            System.out.println("V" + i + "\t\t" + Y[i]);
+        }
+
+        /*
+        for (int i = 1; i < N.length; i++) {
+            int j = i;
+            while (P[j] != 0) {
+                j = P[j];
+            }
+            System.out.println("V" + i + "\t\t(V" + (i - 1) + ", V" + i + ")");
+        }
+
+
+         */
     }
 
     public static void main(String[] args) throws IOException {
@@ -164,27 +201,72 @@ public class ForwardingTable {
             }
         }
 
+        // Validate file
+        validate("topo.txt", n);
+
         // Initialize 2D int array
         int[][] W = new int[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                W[i][j] = max_value;
+                if (i == j) {
+                    W[i][j] = 0;
+                } else {
+                    W[i][j] = max_value;
+                }
             }
-        }
-        for (int i = 0; i < W.length; i++) {
-            W[i][i] = 0;
         }
 
         // Set costs in W from "topo.txt"
         int[][] adjW = adjMatrix("topo.txt", W);
 
         // Calculate the shortest distances with dijkstra's
-        int[] D = dijkstra(adjW);
-        System.out.print("D: ");
-        for (int i = 0; i < D.length; i++) {
-            System.out.print(D[i] + " ");
-        }
-        System.out.println();
 
+        // Initialization:
+        int[] N = new int[n];
+        N[0] = 0;
+        boolean[] V = new boolean[n];
+        int[] P = new int[n];
+        String[] Y = new String[n-1];
+        int[] D = new int[n];
+        for (int i = 0; i < W.length; i++) {
+            if (W[0][i] > 0 && W[0][i] < max_value) {
+                D[i] = W[0][i];
+                P[i] = 0;
+                V[i] = false;
+            }
+            else {
+                D[i] = max_value;
+                V[i] = false;
+            }
+        }
+
+        // Loop:
+        for (int k = 0; k < N.length - 1; k++) {
+            int minVal = max_value;
+            int minIndex = 0;
+            for (int i = 0; i < D.length; i++) {
+                if (D[i] < minVal && !V[i]) {
+                    minVal = D[i];
+                    minIndex = i;
+                    System.out.println("minIndex: " + minIndex);
+                }
+            }
+            N[k] = minIndex;
+            System.out.println("N: " + N[k]);
+            Y[k] = "(V" + P[minIndex] + ", V" + minIndex +")";
+            System.out.println("Y: " + Y[k]);
+            /* boolean contains = Arrays.asList(N).contains(minIndex);
+            if (!contains) {
+                N[k] = minIndex;
+                System.out.println("N: " + N[k]);
+                Y[k] = "(V" + P[minIndex] + ", V" + minIndex +")";
+                System.out.println("Y: " + Y[k]);
+            }
+             */
+        }
+
+        //String[] Y = dijkstra(adjW);
+        //printResults(D);
+        //printTable(Y);
     }
 }
