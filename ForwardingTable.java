@@ -90,7 +90,7 @@ public class ForwardingTable {
     @param W  weight matrix
     @return D distances
     */
-    /*
+    // /*
     private static String[] dijkstra(int[][] W) {
         boolean[] V = new boolean[W.length];
         int[] D = new int[W.length];
@@ -114,7 +114,9 @@ public class ForwardingTable {
                     D[j] = D[nmv] + W[nmv][j];
                     // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
                     Y[j] = "(V" + P[j] + ", V" + nmv + ")";
+                    System.out.println(Y[j]);
                     P[j] = nmv;
+                    System.out.println(P);
                 }
             }
         }
@@ -137,9 +139,12 @@ public class ForwardingTable {
         }
         System.out.println();
 
+        printTable(P);
+        printResults(D);
         return Y;
     }
-    */
+
+    // */
 
     /*
     Prints the results of the dijkstra's algorithm
@@ -157,25 +162,16 @@ public class ForwardingTable {
     Prints the shortest distances found by dijkstra's into forwarding table
     @param D Set of shortest distances between V0 and n
      */
-    private static void printTable(String[] Y) {
-        // TODO: 3. Use the shortest-path tree resulted from the Dijkstra’s algorithm to build up the forwarding table for router V-1 . Display the
-        //          forwarding table in the following format:
+    private static void printTable(int[] P) {
+        System.out.println("Forwarding Table for V0:");
         System.out.println("Destination\tLink");
-        for (int i = 1; i < Y.length; i++) {
-            System.out.println("V" + i + "\t\t" + Y[i]);
-        }
-
-        /*
-        for (int i = 1; i < N.length; i++) {
+        for (int i = 1; i < P.length; i++) {
             int j = i;
-            while (P[j] != 0) {
+            while (P[j] != 0) { // Assumes V0 has index 0
                 j = P[j];
             }
-            System.out.println("V" + i + "\t\t(V" + (i - 1) + ", V" + i + ")");
+            System.out.println("V" + i + "\t(V0, V" + j + ")");
         }
-
-
-         */
     }
 
     public static void main(String[] args) throws IOException {
@@ -220,7 +216,7 @@ public class ForwardingTable {
         int[][] adjW = adjMatrix("topo.txt", W);
 
         // Calculate the shortest distances with dijkstra's
-
+/*
         // Initialization:
         int[] N = new int[n];
         N[0] = 0;
@@ -262,10 +258,10 @@ public class ForwardingTable {
                 Y[k] = "(V" + P[minIndex] + ", V" + minIndex +")";
                 System.out.println("Y: " + Y[k]);
             }
-             */
+             // end comment here
         }
-
-        //String[] Y = dijkstra(adjW);
+*/
+        String[] Y = dijkstra(adjW);
         //printResults(D);
         //printTable(Y);
     }
