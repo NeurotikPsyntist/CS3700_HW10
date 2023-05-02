@@ -63,7 +63,21 @@ public class ForwardingTable {
             line = file.readLine();
         }
         file.close();
+
         return W;
+    }
+
+    private static void printMatrix(int[][] M) {
+        for (int i = 0; i < M.length; i++) {
+            for (int j = 0; j < M.length; j++) {
+                if (M[i][j] == max_value) {
+                    System.out.print("INF\t");
+                } else {
+                System.out.print(M[i][j] + "\t");
+                }
+            }
+            System.out.println();
+        }
     }
 
     /*
@@ -164,10 +178,10 @@ public class ForwardingTable {
      */
     private static void printTable(int[] P) {
         System.out.println("Forwarding Table for V0:");
-        System.out.println("Destination\tLink");
+        System.out.println("Destination\t\tLink");
         for (int i = 1; i < P.length; i++) {
             int j = i;
-            while (P[j] != 0) { // Assumes V0 has index 0
+            while (P[j] != 0) {
                 j = P[j];
             }
             System.out.println("V" + i + "\t(V0, V" + j + ")");
@@ -212,8 +226,13 @@ public class ForwardingTable {
             }
         }
 
+        System.out.println("Initial weight matrix:");
+        printMatrix(W);
+
         // Set costs in W from "topo.txt"
         int[][] adjW = adjMatrix("topo.txt", W);
+        System.out.println("Adjusted weight matrix:");
+        printMatrix(adjW);
 
         // Calculate the shortest distances with dijkstra's
 /*
