@@ -32,8 +32,6 @@ public class ForwardingTable {
                 file.close();
                 return false;
             }
-
-
             line = file.readLine();
             rowNum++;
         }
@@ -63,7 +61,6 @@ public class ForwardingTable {
             line = file.readLine();
         }
         file.close();
-
         return W;
     }
 
@@ -105,7 +102,7 @@ public class ForwardingTable {
     @return D distances
     */
     // /*
-    private static String[] dijkstra(int[][] W) {
+    private static int[] dijkstra(int[][] W) {
         boolean[] V = new boolean[W.length];
         int[] D = new int[W.length];
         int[] N = new int[W.length];
@@ -128,9 +125,9 @@ public class ForwardingTable {
                     D[j] = D[nmv] + W[nmv][j];
                     // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
                     Y[j] = "(V" + P[j] + ", V" + nmv + ")";
-                    System.out.println(Y[j]);
+                    //System.out.println(Y[j]);
                     P[j] = nmv;
-                    System.out.println(P);
+                    //System.out.println(P[j]);
                 }
             }
         }
@@ -141,21 +138,20 @@ public class ForwardingTable {
         }
         System.out.println();
 
-        System.out.print("V: ");
-        for (int i = 0; i < V.length; i++) {
-            System.out.print(V[i] + " ");
+        System.out.print("Y: ");
+        for (int i = 0; i < Y.length; i++) {
+            System.out.print(Y[i] + " ");
         }
         System.out.println();
 
-        System.out.print("N: ");
+        System.out.print("N': ");
         for (int i = 0; i < N.length; i++) {
             System.out.print(N[i] + " ");
         }
         System.out.println();
 
         printTable(P);
-        printResults(D);
-        return Y;
+        return D;
     }
 
     // */
@@ -177,14 +173,14 @@ public class ForwardingTable {
     @param D Set of shortest distances between V0 and n
      */
     private static void printTable(int[] P) {
-        System.out.println("Forwarding Table for V0:");
-        System.out.println("Destination\t\tLink");
+        System.out.println("\nForwarding Table for V0:");
+        System.out.println("Destination\tLink");
         for (int i = 1; i < P.length; i++) {
             int j = i;
             while (P[j] != 0) {
                 j = P[j];
             }
-            System.out.println("V" + i + "\t(V0, V" + j + ")");
+            System.out.println("V" + i + "\t\t(V0, V" + j + ")");
         }
     }
 
@@ -235,53 +231,8 @@ public class ForwardingTable {
         printMatrix(adjW);
 
         // Calculate the shortest distances with dijkstra's
-/*
-        // Initialization:
-        int[] N = new int[n];
-        N[0] = 0;
-        boolean[] V = new boolean[n];
-        int[] P = new int[n];
-        String[] Y = new String[n-1];
-        int[] D = new int[n];
-        for (int i = 0; i < W.length; i++) {
-            if (W[0][i] > 0 && W[0][i] < max_value) {
-                D[i] = W[0][i];
-                P[i] = 0;
-                V[i] = false;
-            }
-            else {
-                D[i] = max_value;
-                V[i] = false;
-            }
-        }
-
-        // Loop:
-        for (int k = 0; k < N.length - 1; k++) {
-            int minVal = max_value;
-            int minIndex = 0;
-            for (int i = 0; i < D.length; i++) {
-                if (D[i] < minVal && !V[i]) {
-                    minVal = D[i];
-                    minIndex = i;
-                    System.out.println("minIndex: " + minIndex);
-                }
-            }
-            N[k] = minIndex;
-            System.out.println("N: " + N[k]);
-            Y[k] = "(V" + P[minIndex] + ", V" + minIndex +")";
-            System.out.println("Y: " + Y[k]);
-            /* boolean contains = Arrays.asList(N).contains(minIndex);
-            if (!contains) {
-                N[k] = minIndex;
-                System.out.println("N: " + N[k]);
-                Y[k] = "(V" + P[minIndex] + ", V" + minIndex +")";
-                System.out.println("Y: " + Y[k]);
-            }
-             // end comment here
-        }
-*/
-        String[] Y = dijkstra(adjW);
-        //printResults(D);
+       int[] D = dijkstra(adjW);
+        printResults(D);
         //printTable(Y);
     }
 }
