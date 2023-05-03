@@ -1,10 +1,6 @@
 package CS3700_HW10;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map.Entry;
-import java.util.AbstractMap.SimpleEntry;
 
 public class ForwardingTable {
 
@@ -112,6 +108,7 @@ public class ForwardingTable {
         for (int i = 0; i < W.length; i++) {
             D[i] = W[0][i];
             V[i] = false;
+            Y[i] = "(V0, V0)";
         }
 
 
@@ -123,11 +120,8 @@ public class ForwardingTable {
             for (int j = 0; j < W.length; j++) {
                 if (W[nmv][j] > 0 && !V[j] && D[j] > D[nmv] + W[nmv][j]) {
                     D[j] = D[nmv] + W[nmv][j];
-                    // TODO: 2. Add to and print ArrayLists of N', Y', D.get(i), P.get(i-1)
                     Y[j] = "(V" + P[j] + ", V" + nmv + ")";
-                    //System.out.println(Y[j]);
                     P[j] = nmv;
-                    //System.out.println(P[j]);
                 }
             }
         }
@@ -153,8 +147,6 @@ public class ForwardingTable {
         printTable(P);
         return D;
     }
-
-    // */
 
     /*
     Prints the results of the dijkstra's algorithm
@@ -231,8 +223,7 @@ public class ForwardingTable {
         printMatrix(adjW);
 
         // Calculate the shortest distances with dijkstra's
-       int[] D = dijkstra(adjW);
+        int[] D = dijkstra(adjW);
         printResults(D);
-        //printTable(Y);
     }
 }
