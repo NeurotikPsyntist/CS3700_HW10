@@ -1,5 +1,3 @@
-package CS3700_HW10;
-
 import java.io.*;
 
 public class ForwardingTable {
